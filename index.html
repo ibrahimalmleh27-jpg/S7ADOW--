@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>S7ADOWS Upload</title>
+
+<style>
+
+body{
+    background:#0f172a;
+    color:white;
+    font-family:sans-serif;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.box{
+    background:#1e293b;
+    padding:30px;
+    border-radius:15px;
+    text-align:center;
+    width:350px;
+}
+
+button{
+    padding:10px 20px;
+    background:#3b82f6;
+    border:none;
+    color:white;
+    margin-top:10px;
+    cursor:pointer;
+    border-radius:10px;
+}
+
+a{
+    color:#38bdf8;
+    word-break:break-all;
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="box">
+
+<h2>S7ADOWS UPLOAD</h2>
+
+<input type="file" id="file">
+
+<br>
+
+<button onclick="upload()">Upload</button>
+
+<div id="result"></div>
+
+</div>
+
+<script>
+
+async function upload(){
+
+    const file = document.getElementById('file').files[0]
+
+    if(!file){
+        alert("Choose file")
+        return
+    }
+
+    const form = new FormData()
+    form.append("file", file)
+
+    const res = await fetch("/upload", {
+        method:"POST",
+        body:form
+    })
+
+    const data = await res.json()
+
+    document.getElementById("result").innerHTML = `
+        <p>File Link:</p>
+        <a href="${data.file}" target="_blank">${data.file}</a>
+    `
+
+}
+
+</script>
+
+</body>
+</html>
