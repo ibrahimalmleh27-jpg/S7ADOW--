@@ -1,6 +1,7 @@
 {
   "name": "s7adows-upload",
   "version": "1.0.0",
+  "description": "S7ADOWS Upload API",
   "main": "index.js",
   "type": "commonjs",
   "scripts": {
