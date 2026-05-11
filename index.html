@@ -2,6 +2,8 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <title>S7ADOWS Upload</title>
 
 <style>
@@ -13,25 +15,25 @@ body{
     display:flex;
     justify-content:center;
     align-items:center;
-    height:100vh;
+    min-height:100vh;
 }
 
 .box{
     background:#1e293b;
     padding:30px;
-    border-radius:15px;
-    text-align:center;
+    border-radius:20px;
     width:350px;
+    text-align:center;
 }
 
 button{
-    padding:10px 20px;
-    background:#3b82f6;
-    border:none;
+    background:#2563eb;
     color:white;
-    margin-top:10px;
-    cursor:pointer;
+    border:none;
+    padding:10px 20px;
     border-radius:10px;
+    cursor:pointer;
+    margin-top:10px;
 }
 
 a{
@@ -39,8 +41,24 @@ a{
     word-break:break-all;
 }
 
-</style>
+.preview{
+    margin-top:15px;
+    max-width:100%;
+    border-radius:10px;
+}
 
+textarea{
+    width:100%;
+    height:70px;
+    margin-top:10px;
+    border-radius:10px;
+    padding:10px;
+    background:#0f172a;
+    color:white;
+    border:none;
+}
+
+</style>
 </head>
 <body>
 
@@ -52,7 +70,11 @@ a{
 
 <br>
 
-<button onclick="upload()">Upload</button>
+<button onclick="uploadFile()">
+Upload
+</button>
+
+<div id="preview"></div>
 
 <div id="result"></div>
 
@@ -60,29 +82,111 @@ a{
 
 <script>
 
-async function upload(){
+async function uploadFile(){
 
-    const file = document.getElementById('file').files[0]
+    const file =
+        document.getElementById('file').files[0]
 
     if(!file){
+
         alert("Choose file")
+
         return
     }
 
     const form = new FormData()
-    form.append("file", file)
 
-    const res = await fetch("/upload", {
-        method:"POST",
+    form.append('file', file)
+
+    const res = await fetch('/api/upload', {
+        method:'POST',
         body:form
     })
 
     const data = await res.json()
 
-    document.getElementById("result").innerHTML = `
-        <p>File Link:</p>
-        <a href="${data.file}" target="_blank">${data.file}</a>
+    if(!data.status){
+
+        alert(data.error)
+
+        return
+    }
+
+    const apiCode =
+`fetch('${window.location.origin}/api/upload', {
+  method: 'POST',
+  body: formData
+})`
+
+    let preview = ''
+
+    // معاينة الصور
+    if(file.type.startsWith('image/')){
+
+        preview =
+        `<img class="preview" src="${data.url}">`
+
+    }
+
+    // معاينة الفيديو
+    else if(file.type.startsWith('video/')){
+
+        preview =
+        `
+        <video class="preview" controls>
+            <source src="${data.url}">
+        </video>
+        `
+
+    }
+
+    document.getElementById('preview').innerHTML =
+        preview
+
+    document.getElementById('result').innerHTML = `
+
+        <p>File URL:</p>
+
+        <a href="${data.url}" target="_blank">
+            ${data.url}
+        </a>
+
+        <br>
+
+        <button onclick="copyText('${data.url}')">
+            Copy File Link
+        </button>
+
+        <h3>API Example</h3>
+
+        <textarea id="apiBox">${apiCode}</textarea>
+
+        <button onclick="copyApi()">
+            Copy API
+        </button>
+
     `
+
+}
+
+// نسخ الرابط
+function copyText(text){
+
+    navigator.clipboard.writeText(text)
+
+    alert("Copied")
+
+}
+
+// نسخ API
+function copyApi(){
+
+    const text =
+        document.getElementById('apiBox').value
+
+    navigator.clipboard.writeText(text)
+
+    alert("API Copied")
 
 }
 
