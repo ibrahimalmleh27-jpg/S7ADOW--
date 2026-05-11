@@ -18,25 +18,18 @@ if (!fs.existsSync('./uploads')) {
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')))
 
-// إعداد رفع الملفات
+// توليد اسم قصير مثل Catbox
 const storage = multer.diskStorage({
-
     destination: (req, file, cb) => {
         cb(null, 'uploads/')
     },
-
     filename: (req, file, cb) => {
 
-        const unique =
-            Date.now() + '-' + Math.round(Math.random() * 1e9)
+        const shortId =
+            Math.random().toString(36).substring(2, 8)
 
-        cb(
-            null,
-            unique + path.extname(file.originalname)
-        )
-
+        cb(null, shortId + path.extname(file.originalname))
     }
-
 })
 
 const upload = multer({ storage })
@@ -44,37 +37,21 @@ const upload = multer({ storage })
 // API رفع الملفات
 app.post('/api/upload', upload.single('file'), (req, res) => {
 
-    try {
-
-        if (!req.file) {
-
-            return res.json({
-                status: false,
-                message: 'No file uploaded'
-            })
-
-        }
-
-        const fileUrl =
-            `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
-
-        res.json({
-            status: true,
-            creator: "S7ADOWS",
-            file_name: req.file.originalname,
-            size: req.file.size,
-            url: fileUrl
-        })
-
-    } catch (e) {
-
-        res.json({
+    if (!req.file) {
+        return res.json({
             status: false,
-            error: e.message
+            message: 'No file uploaded'
         })
-
     }
 
+    const fileUrl =
+        `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`
+
+    res.json({
+        status: true,
+        creator: "S7ADOWS",
+        url: fileUrl
+    })
 })
 
 // الصفحة الرئيسية
